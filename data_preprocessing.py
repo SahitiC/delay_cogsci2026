@@ -3,20 +3,14 @@
 import numpy as np
 import pandas as pd
 import ast
-from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 import seaborn as sns
-import helper
+import matplotlib as mpl
+mpl.rcParams['font.size'] = 14
+mpl.rcParams['lines.linewidth'] = 1
+mpl.rcParams['axes.linewidth'] = 1
 
 # %% functions
-
-
-def normalize_cumulative_progress(row):
-    """
-    normalise cumulative progress by total credits
-    """
-    temp = np.array(ast.literal_eval(row['cumulative progress']))
-    return list(temp / row['Total credits'])
 
 
 def process_delta_progress(row, semester_length_weeks):
@@ -67,10 +61,6 @@ semester_length = len(ast.literal_eval(data_relevant['delta progress'][0]))
 
 # %% transform trajectories
 
-# normalise cumulative series
-data_relevant['cumulative progress normalised'] = data_relevant.apply(
-    normalize_cumulative_progress, axis=1)
-
 # delta progress week wise
 semester_length_weeks = round(semester_length/7)
 data_relevant['delta progress weeks'] = data_relevant.apply(
@@ -83,38 +73,21 @@ data_relevant['cumulative progress weeks'] = data_relevant.apply(
 # choose columns to save
 data_subset = data_relevant[['SUB_INDEX_194', 'Total credits',
                              'delta progress', 'cumulative progress',
-                             'cumulative progress normalised',
                              'delta progress weeks',
                              'cumulative progress weeks']]
 
 data_subset.to_csv('data_preprocessed.csv', index=False)
 
-# %% cluster
-timeseries_to_cluster = list(data_relevant.apply(
-    get_timeseries_to_cluster, axis=1))
-
-inertia = []
-for cluster_size in range(1, 14):
-    print(cluster_size+1)
-    km = KMeans(n_clusters=cluster_size+1, n_init=10,
-                random_state=0)
-    labels = km.fit_predict(timeseries_to_cluster)
-    inertia.append(km.inertia_)
-plt.plot(inertia)
-
-km = KMeans(n_clusters=3, n_init=10, random_state=0, verbose=True)
-labels = km.fit_predict(timeseries_to_cluster)
-
-help.plot_clustered_data(timeseries_to_cluster, labels)
-
-data_clustered = pd.DataFrame(
-    {'cumulative progress weeks': timeseries_to_cluster,
-     'labels': labels})
-# convert np floats to floats in rows
-data_clustered["cumulative progress weeks"] = data_clustered[
-    "cumulative progress weeks"].apply(
-    lambda lst: [float(x) for x in lst])
-
-data_clustered.to_csv('data_clustered.csv', index=False)
+# %%
+plt.figure(figsize=(4, 4))
+for i in [18, 65, 93, 139]:
+    units = np.array(data_subset['cumulative progress weeks'][i])
+    plt.plot(units*2, color='black')
+plt.xlabel('time in weeks')
+plt.ylabel('units of work completed')
+plt.title('Data')
+plt.xticks([0, 7, 15])
+plt.yticks([0, 10, 22])
+sns.despine()
 
 # %%
