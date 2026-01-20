@@ -6,7 +6,7 @@ import ast
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib as mpl
-mpl.rcParams['font.size'] = 14
+mpl.rcParams['font.size'] = 16
 mpl.rcParams['lines.linewidth'] = 1
 mpl.rcParams['axes.linewidth'] = 1
 
@@ -27,7 +27,7 @@ def process_delta_progress(row, semester_length_weeks):
 
 def cumulative_progress_weeks(row):
 
-    return list(np.cumsum(row['delta progress weeks']))
+    return np.cumsum(row['delta progress weeks']).tolist()
 
 
 def get_timeseries_to_cluster(row):
@@ -79,7 +79,7 @@ data_subset = data_relevant[['SUB_INDEX_194', 'Total credits',
 data_subset.to_csv('data_preprocessed.csv', index=False)
 
 # %%
-plt.figure(figsize=(4, 4))
+plt.figure(figsize=(4, 4), dpi=300)
 for i in [18, 65, 93, 139]:
     units = np.array(data_subset['cumulative progress weeks'][i])
     plt.plot(units*2, color='black')
@@ -89,5 +89,9 @@ plt.title('Data')
 plt.xticks([0, 7, 15])
 plt.yticks([0, 10, 22])
 sns.despine()
+plt.savefig(
+    f'plots/vectors/data.svg',
+    format='svg', dpi=300)
+plt.show()
 
 # %%

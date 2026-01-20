@@ -1,4 +1,5 @@
 # %% imports
+import seaborn as sns
 import gen_data
 import constants
 import numpy as np
@@ -7,9 +8,12 @@ from scipy.optimize import minimize
 from scipy.integrate import nquad
 import matplotlib.pyplot as plt
 import ast
-import statsmodels.formula.api as smf
 from scipy.stats import pearsonr
 from scipy.stats import chi2
+import matplotlib as mpl
+mpl.rcParams['font.size'] = 16
+mpl.rcParams['lines.linewidth'] = 1
+mpl.rcParams['axes.linewidth'] = 1
 
 # %% functions
 
@@ -184,7 +188,7 @@ def get_mucw(row):
         row['delta progress weeks']))*2
     units_cum = np.array(ast.literal_eval(
         row['cumulative progress weeks']))*2
-    if np.max(units_cum) >= 14:
+    if np.max(units_cum) > 14:
         a = np.where(units_cum >= 14)[0][0]
         arr = units[:a+1]
         if units_cum[a] > 14:
@@ -198,7 +202,7 @@ def get_mucw(row):
 
 
 def get_mucw_simulated(trajectory):
-    if np.max(trajectory) >= 14:
+    if np.max(trajectory) > 14:
         a = np.where(trajectory >= 14)[0][0]
         arr = trajectory[:a+1]
         if arr[-1] > 14:
@@ -236,7 +240,7 @@ if __name__ == "__main__":
     data_full_filter = data_full_filter.reset_index(drop=True)
 
     result_fit_mle = np.load(
-        "fits/fit_individual_mle_with_hess.npy", allow_pickle=True)
+        "fit_individual_mle.npy", allow_pickle=True)
 
     result_fit_params = np.array([result_fit_mle[i]['par_b']
                                   for i in range(len(result_fit_mle))])
@@ -252,25 +256,45 @@ if __name__ == "__main__":
     data_weeks = data_relevant.iloc[valid_indices].reset_index(drop=True)
     fit_params = result_fit_params[valid_indices]
     diag_hess = result_diag_hess[valid_indices]
+    par_names = [r'$\gamma$', r'$\eta$', r'$r_{\text{effort}}$']
 
-    # plot params
+    # %% plot params
     for i in range(3):
-        plt.figure(figsize=(4, 4))
-        plt.hist(fit_params[:, i])
+        plt.figure(figsize=(4, 4), dpi=300)
+        plt.hist(fit_params[:, i], color='grey')
+        plt.xlabel(par_names[i])
+        sns.despine()
+        plt.savefig(
+            f'plots/vectors/pars_{i}.svg',
+            format='svg', dpi=300)
+        plt.show()
 
+    plt.figure(figsize=(4, 4), dpi=300)
+    a = fit_params[:, 0]
+    a = np.where(a == 1, 0.999, a)
+    plt.hist(1/(1-a), color='grey')
+    plt.xlabel(r'$\frac{1}{1-\gamma}$')
+    sns.despine()
+    plt.savefig(
+        'plots/vectors/par_disc_transf.svg',
+        format='svg', dpi=300)
+    plt.show()
+
+    count = 0
     for i in range(3):
         for j in range(i+1):
-            plt.figure(figsize=(4, 4))
-            plt.scatter(fit_params[:, i],
-                        fit_params[:, j])
-            plt.title(f'Param {i} vs Param {j}')
-
-    plt.figure(figsize=(4, 4))
-    plt.hist(np.log(1/fit_params[:, 0]))
-    plt.figure(figsize=(4, 4))
-    a = fit_params[:, 0]
-    a = np.where(a == 1, 0.99, a)
-    plt.hist(1/(1-a))
+            if i != j:
+                plt.figure(figsize=(4, 4), dpi=300)
+                plt.scatter(fit_params[:, i],
+                            fit_params[:, j], color='grey')
+                plt.xlabel(par_names[i])
+                plt.ylabel(par_names[j])
+                count += 1
+                sns.despine()
+                plt.savefig(
+                    f'plots/vectors/pars_corr_{count}.svg',
+                    format='svg', dpi=300)
+                plt.show()
 
     # %% variables
 
@@ -292,6 +316,86 @@ if __name__ == "__main__":
     # delays
     mucw = np.array(data_weeks.apply(get_mucw, axis=1))
     completion_week = np.array(data_weeks.apply(get_completion_week, axis=1))
+
+    # %% plot mucw vs params
+
+    np.random.seed(0)
+    y, disc, efficacy, effort = drop_nans(
+        mucw, discount_factors_fitted, efficacy_fitted,
+        efforts_fitted)
+    plt.figure(figsize=(4, 4), dpi=300)
+    plt.scatter(disc, y, color='gray')
+    plt.xlabel(r'$\gamma$')
+    plt.ylabel('MUCW')
+    plt.figure(figsize=(4, 4), dpi=300)
+    plt.scatter(efficacy, y, color='gray')
+    plt.xlabel(r'$\eta$')
+    plt.ylabel('MUCW')
+    sns.despine()
+    plt.savefig(
+        f'plots/vectors/mucw_effic.svg',
+        format='svg', dpi=300)
+    plt.figure(figsize=(4, 4), dpi=300)
+    plt.scatter(effort, y, color='gray')
+    plt.xlabel(r'$r_{\text{effort}}$')
+    plt.ylabel('MUCW')
+    sns.despine()
+    plt.savefig(
+        f'plots/vectors/mucw_effort.svg',
+        format='svg', dpi=300)
+
+    a = disc
+    a = np.where(disc == 1, 0.999, disc)
+    plt.figure(figsize=(4, 4), dpi=300)
+    plt.scatter(1/(1-a), y, color='gray')
+    plt.xlabel(r'$\frac{1}{1-\gamma}$')
+    plt.ylabel('MUCW')
+    sns.despine()
+    plt.savefig(
+        f'plots/vectors/mucw_disc.svg',
+        format='svg', dpi=300)
+
+    #  compare with simulated data for these parameters
+    mucw_simulated = []
+    for i in range(len(disc)):
+        data = gen_data.gen_data_basic(
+            constants.STATES, constants.ACTIONS, constants.HORIZON,
+            constants.REWARD_THR, constants.REWARD_EXTRA, constants.REWARD_SHIRK,
+            constants.BETA, disc[i], efficacy[i], effort[i],
+            5, constants.THR, constants.STATES_NO)
+        temp = []
+        for d in data:
+            temp.append(get_mucw_simulated(d))
+        mucw_i = np.nanmean(np.array(temp))
+        mucw_simulated.append(mucw_i)
+    plt.figure(figsize=(4, 4), dpi=300)
+    plt.scatter(disc, mucw_simulated, color='gray')
+    plt.xlabel(r'$\gamma$')
+    plt.ylabel('MUCW')
+    plt.figure(figsize=(4, 4), dpi=300)
+    plt.scatter(1/(1-a), mucw_simulated, color='gray')
+    plt.xlabel(r'$\frac{1}{1-\gamma}$')
+    plt.ylabel('MUCW')
+    sns.despine()
+    plt.savefig(
+        f'plots/vectors/mucw_sim_disc.svg',
+        format='svg', dpi=300)
+    plt.figure(figsize=(4, 4), dpi=300)
+    plt.scatter(efficacy, mucw_simulated, color='gray')
+    plt.xlabel(r'$\eta$')
+    plt.ylabel('MUCW')
+    sns.despine()
+    plt.savefig(
+        f'plots/vectors/mucw_sim_effic.svg',
+        format='svg', dpi=300)
+    plt.figure(figsize=(4, 4), dpi=300)
+    plt.scatter(effort, mucw_simulated, color='gray')
+    plt.xlabel(r'$r_{\text{effort}}$')
+    plt.ylabel('MUCW')
+    sns.despine()
+    plt.savefig(
+        f'plots/vectors/mucw_sim_effort.svg',
+        format='svg', dpi=300)
 
     # %% correlations
 
@@ -329,62 +433,3 @@ if __name__ == "__main__":
     lr_stat = 2 * (result_null.fun - result.fun)
     p_value = 1 - chi2.cdf(lr_stat, df=1)
     print(lr_stat, p_value)
-
-    # corresponding OLS regressions
-    df = pd.DataFrame({'y': y,
-                       'xhat': xhat})
-    model = smf.ols(
-        formula='y ~ xhat', data=df).fit()
-
-    df = pd.DataFrame({'y': y})
-    model0 = smf.ols(
-        formula='y ~ 1', data=df).fit()
-
-# %%
-
-y, disc, efficacy, effort = drop_nans(
-    mucw, discount_factors_fitted, efficacy_fitted,
-    efforts_fitted)
-plt.figure(figsize=(4, 4))
-plt.scatter(disc, y)
-plt.xlabel('discount factor')
-plt.figure(figsize=(4, 4))
-plt.scatter(efficacy, y)
-plt.xlabel('efficacy')
-plt.figure(figsize=(4, 4))
-plt.scatter(effort, y)
-plt.xlabel('effort')
-
-a = disc
-a = np.where(disc == 1, 0.99, disc)
-plt.figure(figsize=(4, 4))
-plt.scatter(1/(1-a), y)
-plt.xlabel('1/(1-disc)')
-
-# %% compare with simulated data for these parameters
-mucw_simulated = []
-for i in range(len(disc)):
-    data = gen_data.gen_data_basic(
-        constants.STATES, constants.ACTIONS, constants.HORIZON,
-        constants.REWARD_THR, constants.REWARD_EXTRA, constants.REWARD_SHIRK,
-        constants.BETA, disc[i], efficacy[i], effort[i],
-        5, constants.THR, constants.STATES_NO)
-    temp = []
-    for d in data:
-        temp.append(get_mucw_simulated(d))
-    mucw_i = np.nanmean(np.array(temp))
-    mucw_simulated.append(mucw_i)
-plt.figure(figsize=(4, 4))
-plt.scatter(disc, mucw_simulated)
-plt.xlabel('discount factor')
-plt.figure(figsize=(4, 4))
-plt.scatter(1/(1-a), mucw_simulated)
-plt.xlabel('1/(1-disc)')
-plt.figure(figsize=(4, 4))
-plt.scatter(efficacy, mucw_simulated)
-plt.xlabel('eficacy')
-plt.figure(figsize=(4, 4))
-plt.scatter(effort, mucw_simulated)
-plt.xlabel('effort')
-
-# %%
