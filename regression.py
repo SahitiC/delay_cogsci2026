@@ -295,8 +295,11 @@ if __name__ == "__main__":
 
     # %% correlations
 
+    # with N=160
     y, x = drop_nans(proc_mean, discount_factors_empirical)
     pearsonr(y, x)
+
+    # with N=93 who worked to complete their requirement but no extra units
 
     # %% regressions
 
@@ -336,27 +339,6 @@ if __name__ == "__main__":
     df = pd.DataFrame({'y': y})
     model0 = smf.ols(
         formula='y ~ 1', data=df).fit()
-
-# %% multivariate ols regressions
-
-y, disc, efficacy, effort = drop_nans(
-    mucw, discount_factors_fitted, efficacy_fitted,
-    efforts_fitted)
-
-df = pd.DataFrame({'y': y,
-                  'disc': disc,
-                   'efficacy': efficacy,
-                   'effort': effort})
-model1 = smf.ols(
-    formula='y ~ disc + efficacy + effort', data=df).fit()
-print(model1.summary())
-
-model0 = smf.ols(
-    formula='y ~ disc', data=df).fit()
-print(model0.summary())
-
-lr_stat, p_value, df_diff = model1.compare_lr_test(model0)
-print(lr_stat, p_value, df_diff)
 
 # %%
 
