@@ -298,7 +298,7 @@ if __name__ == "__main__":
 
     # %% variables
 
-    # survey results
+    # survey scores
     discount_factors_log_empirical = np.array(data['DiscountRate_lnk'])
     discount_factors_empirical = np.exp(discount_factors_log_empirical)
     proc_mean = np.array(data['AcadeProcFreq_mean'])
@@ -360,9 +360,9 @@ if __name__ == "__main__":
     for i in range(len(disc)):
         data = gen_data.gen_data_basic(
             constants.STATES, constants.ACTIONS, constants.HORIZON,
-            constants.REWARD_THR, constants.REWARD_EXTRA, constants.REWARD_SHIRK,
-            constants.BETA, disc[i], efficacy[i], effort[i],
-            5, constants.THR, constants.STATES_NO)
+            constants.REWARD_THR, constants.REWARD_EXTRA,
+            constants.REWARD_SHIRK, constants.BETA, disc[i], efficacy[i],
+            effort[i], 5, constants.THR, constants.STATES_NO)
         temp = []
         for d in data:
             temp.append(get_mucw_simulated(d))
@@ -403,8 +403,10 @@ if __name__ == "__main__":
     y, x = drop_nans(proc_mean, discount_factors_empirical)
     pearsonr(y, x)
 
-    # with N=93 who worked to complete their requirement but no extra units
-
+    # with N=93 who worked to complete their requirement but no more
+    filter = []
+    for i in range(len(data_weeks)):
+        traj = ast.literal_eval(data_weeks.iloc[i, 5])
     # %% regressions
 
     y, xhat, hess = drop_nans(
@@ -412,7 +414,7 @@ if __name__ == "__main__":
 
     xhat_reshaped = xhat.reshape(-1, 1)
 
-    # error regression with one prdictor
+    # error regression with one predictor
     result = fit_regression(y, xhat_reshaped,
                             (1/hess)**0.5,
                             bounds=[(0, 1)],
