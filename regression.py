@@ -360,6 +360,11 @@ if __name__ == "__main__":
     plt.scatter(disc, y, color='gray')
     plt.xlabel(r'$\gamma$')
     plt.ylabel('MUCW')
+    sns.despine()
+    plt.savefig(
+    f'plots/vectors/mucw_disc.svg',
+    format='svg', dpi=300)
+
     plt.figure(figsize=(4, 4), dpi=300)
     plt.scatter(efficacy, y, color='gray')
     plt.xlabel(r'$\eta$')
@@ -385,7 +390,7 @@ if __name__ == "__main__":
     plt.ylabel('MUCW')
     sns.despine()
     plt.savefig(
-        f'plots/vectors/mucw_disc.svg',
+        f'plots/vectors/mucw_inv_disc.svg',
         format='svg', dpi=300)
 
     #  compare with simulated data for these parameters
@@ -405,13 +410,17 @@ if __name__ == "__main__":
     plt.scatter(disc, mucw_simulated, color='gray')
     plt.xlabel(r'$\gamma$')
     plt.ylabel('MUCW')
+    sns.despine()
+    plt.savefig(
+        f'plots/vectors/mucw_sim_disc.svg',
+        format='svg', dpi=300)
     plt.figure(figsize=(4, 4), dpi=300)
     plt.scatter(1/(1-a), mucw_simulated, color='gray')
     plt.xlabel(r'$\frac{1}{1-\gamma}$')
     plt.ylabel('MUCW')
     sns.despine()
     plt.savefig(
-        f'plots/vectors/mucw_sim_disc.svg',
+        f'plots/vectors/mucw_sim_inv_disc.svg',
         format='svg', dpi=300)
     plt.figure(figsize=(4, 4), dpi=300)
     plt.scatter(efficacy, mucw_simulated, color='gray')
@@ -429,6 +438,52 @@ if __name__ == "__main__":
     plt.savefig(
         f'plots/vectors/mucw_sim_effort.svg',
         format='svg', dpi=300)
+    
+    # %% 3D plots
+    %matplotlib widget
+    trajectories = np.array(
+    [ast.literal_eval(data_weeks['cumulative progress weeks'][i])
+     for i in range(len(data_weeks))])*2
+    units_completed = np.array([np.max(trajectories[i])
+                                for i in range(len(trajectories))])
+    
+    fig = plt.figure(figsize=(6,5))
+    ax = fig.add_subplot(111, projection='3d', elev=-155, azim=-45)
+    p = ax.scatter(fit_params[:, 2], fit_params[:, 1],
+                fit_params[:, 0], c=units_completed, s=60, cmap='viridis')
+    ax.set_title('Units completed', fontsize=14)
+    ax.set_xlabel(r'$r_{\text{effort}}$', fontsize=14)
+    ax.set_ylabel(r'$\eta$', fontsize=14)
+    ax.set_zlabel(r'$\gamma$', fontsize=14)
+    ax.tick_params(axis='x', labelsize=14)
+    ax.tick_params(axis='y', labelsize=14)
+    ax.tick_params(axis='z', labelsize=14)
+    ax.set_box_aspect(None, zoom=1.0)
+    cbar = fig.colorbar(p)
+    cbar.ax.tick_params(labelsize=14)
+    plt.show()
+    plt.savefig(
+    f'plots/vectors/3D_1.svg',
+    format='svg', dpi=300)
+
+    fig = plt.figure(figsize=(6,5))
+    ax = fig.add_subplot(111, projection='3d', elev=-155, azim=-45)
+    p = ax.scatter(fit_params[:, 2], fit_params[:, 1],
+                fit_params[:, 0], c=completion_week, s=60, cmap='viridis')
+    ax.set_title('Completion week', fontsize=14)
+    ax.set_xlabel(r'$r_{\text{effort}}$', fontsize=14)
+    ax.set_ylabel(r'$\eta$', fontsize=14)
+    ax.set_zlabel(r'$\gamma$', fontsize=14)
+    ax.tick_params(axis='x', labelsize=14)
+    ax.tick_params(axis='y', labelsize=14)
+    ax.tick_params(axis='z', labelsize=14)
+    ax.set_box_aspect(None, zoom=1.0)
+    cbar = fig.colorbar(p)
+    cbar.ax.tick_params(labelsize=14)
+    plt.show()
+    plt.savefig(
+    f'plots/vectors/3D_2.svg',
+    format='svg', dpi=300)
 
     # %% regressions
 
