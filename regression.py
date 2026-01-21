@@ -247,6 +247,39 @@ if __name__ == "__main__":
 
     result_diag_hess = np.array([result_fit_mle[i]['hess_diag']
                                 for i in range(len(result_fit_mle))])
+    
+    # %% correlations model agnostic
+
+    discount_factors_log_empirical = np.array(data_full_filter['DiscountRate_lnk'])
+    discount_factors_empirical = np.exp(discount_factors_log_empirical)
+    proc_mean = np.array(data_full_filter['AcadeProcFreq_mean'])
+    mucw = np.array(data_relevant.apply(get_mucw, axis=1))
+
+    # with N=160
+    y, x = drop_nans(proc_mean, discount_factors_empirical)
+    pearsonr(y, x)
+
+    # with N=93 who worked to complete their requirement but no more
+    filter = []
+    for i in range(len(data_relevant)):
+        traj = np.array(ast.literal_eval(data_relevant.iloc[i, 3]))*2
+        # those who completed exactly 14
+        if np.max(traj) == 14:
+            filter.append(i)
+        # those who did more but only to cross 7
+        # only those who did 15, not more
+        # i.e, 14 shouldn't be in the trajectory, 
+        # they shouldn't have done more units after crossing 7
+        elif np.max(traj) > 14 and np.max(traj) < 17:
+            if 14 not in traj and len(np.unique(traj[traj>14]))<2:
+                filter.append(i)
+
+    disc_emp = discount_factors_empirical[filter]
+    proc = proc_mean[filter]
+    mucw_ = mucw[filter]
+
+    y, x = drop_nans(proc, disc_emp)
+    pearsonr(y, x)
 
     # %% remove ppts with negative hess
 
@@ -397,16 +430,6 @@ if __name__ == "__main__":
         f'plots/vectors/mucw_sim_effort.svg',
         format='svg', dpi=300)
 
-    # %% correlations
-
-    # with N=160
-    y, x = drop_nans(proc_mean, discount_factors_empirical)
-    pearsonr(y, x)
-
-    # with N=93 who worked to complete their requirement but no more
-    filter = []
-    for i in range(len(data_weeks)):
-        traj = ast.literal_eval(data_weeks.iloc[i, 5])
     # %% regressions
 
     y, xhat, hess = drop_nans(
