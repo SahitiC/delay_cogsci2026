@@ -48,9 +48,26 @@ def integrand(*args):
     # uniform = 1 / np.prod([b - a for a, b in bounds])
     integrand = (
                 (1/(np.prod(sigma_x_i)*sigma)) *
-        np.exp(
-                    -0.5 * np.sum(((x - xhat_i)/sigma_x_i)**2) +
+        np.exp(-0.5 * np.sum(((x - xhat_i)/sigma_x_i)**2) +
                     -0.5 * ((y_i - (np.dot(beta, x) + intercept))/sigma)**2))
+    return integrand
+
+
+def integrand_mixed(*args):
+    """
+    z_i: exact predictors with no measurement error
+    beta_x: coefficients for latent variables x
+    beta_z: coefficients for latent variables z 
+    rest: same as before
+    """
+    *xs, y_i, z_i, xhat_i, sigma_x_i, beta_z, beta_x, intercept, sigma = args
+    x = np.array(xs)
+    # uniform = 1 / np.prod([b - a for a, b in bounds])
+    integrand = (
+                (1/(np.prod(sigma_x_i)*sigma)) *
+        np.exp(-0.5 * np.sum(((x - xhat_i)/sigma_x_i)**2) +
+                    -0.5 * ((y_i - (np.dot(beta_z, z_i) +
+                                    np.dot(beta_x, x) + intercept))/sigma)**2))
     return integrand
 
 
@@ -83,6 +100,22 @@ def likelihood_i(pars, y_i, xhat_i, sigma_x_i, bounds):
     return integral
 
 
+def likelihood_i_mixed(pars, y_i, z_i, xhat_i, sigma_x_i, bounds):
+
+    p_z = len(z_i)  # no. of exact predictors
+    p_x = len(xhat_i)  # no. of latent predictors
+    beta_z = pars[0:p_z]
+    beta_x = pars[p_z:p_z+p_x]
+    intercept = pars[p_z+p_x]
+    sigma = pars[p_z+p_x+1]
+
+    integral, error = nquad(
+        integrand_mixed, bounds,
+        args=(y_i, z_i, xhat_i, sigma_x_i, beta_z, beta_x, intercept, sigma))
+
+    return integral
+
+
 def negative_log_likelihood(pars, y, xhat, sigma_x, bounds):
     """
     Negative log likelihood for the entire dataset.
@@ -104,6 +137,16 @@ def negative_log_likelihood(pars, y, xhat, sigma_x, bounds):
     nll = 0
     for i in range(len(y)):
         ll_i = likelihood_i(pars, y[i], xhat[i], sigma_x[i], bounds)
+        nll -= np.log(ll_i + 1e-10)  # add small constant to avoid log(0)
+    return nll
+
+
+def negative_log_likelihood_mixed(pars, y, z, xhat, sigma_x, bounds):
+
+    nll = 0
+    for i in range(len(y)):
+        ll_i = likelihood_i_mixed(
+            pars, y[i], z[i], xhat[i], sigma_x[i], bounds)
         nll -= np.log(ll_i + 1e-10)  # add small constant to avoid log(0)
     return nll
 
@@ -135,6 +178,15 @@ def fit_regression(y, xhat, sigma_x, bounds, opt_bounds, initial_guess):
     """
     result = minimize(negative_log_likelihood, initial_guess,
                       args=(y, xhat, sigma_x, bounds),
+                      bounds=opt_bounds)
+    return result
+
+
+def fit_regression_mixed(y, z, xhat, sigma_x, bounds, opt_bounds,
+                         initial_guess):
+
+    result = minimize(negative_log_likelihood_mixed, initial_guess,
+                      args=(y, z, xhat, sigma_x, bounds),
                       bounds=opt_bounds)
     return result
 
@@ -173,6 +225,40 @@ def fit_null_regression(y, xhat, sigma_x, bounds, opt_bounds, initial_guess):
 
     result = minimize(negative_log_likelihood_null, initial_guess,
                       args=(y, xhat, sigma_x, bounds),
+                      bounds=opt_bounds)
+    return result
+
+
+def fit_null_regression_mixed(y, z, xhat, sigma_x, bounds, opt_bounds,
+                              initial_guess, which_zero='x'):
+
+    def negative_log_likelihood_null_mixed(pars, y, z, xhat, sigma_x, bounds,
+                                           which_zero):
+
+        p_z = z.shape[1]
+        p_x = xhat.shape[1]
+
+        if which_zero == 'x':
+            beta_x = np.zeros(p_x)
+            beta_z = pars[:p_z]
+            intercept = pars[p_z]
+            sigma = pars[p_z + 1]
+
+        elif which_zero == 'z':
+            beta_z = np.zeros(p_z)
+            beta_x = pars[:p_x]
+            intercept = pars[p_x]
+            sigma = pars[p_x + 1]
+        nll = 0.0
+        for i in range(len(y)):
+            ll_i = likelihood_i_mixed(
+                np.r_[beta_z, beta_x, intercept, sigma],
+                y[i], z[i], xhat[i], sigma_x[i], bounds)
+            nll -= np.log(ll_i + 1e-10)
+        return nll
+
+    result = minimize(negative_log_likelihood_null_mixed, initial_guess,
+                      args=(y, z, xhat, sigma_x, bounds, which_zero),
                       bounds=opt_bounds)
     return result
 
@@ -247,10 +333,11 @@ if __name__ == "__main__":
 
     result_diag_hess = np.array([result_fit_mle[i]['hess_diag']
                                 for i in range(len(result_fit_mle))])
-    
+
     # %% correlations model agnostic
 
-    discount_factors_log_empirical = np.array(data_full_filter['DiscountRate_lnk'])
+    discount_factors_log_empirical = np.array(
+        data_full_filter['DiscountRate_lnk'])
     discount_factors_empirical = np.exp(discount_factors_log_empirical)
     proc_mean = np.array(data_full_filter['AcadeProcFreq_mean'])
     mucw = np.array(data_relevant.apply(get_mucw, axis=1))
@@ -268,10 +355,10 @@ if __name__ == "__main__":
             filter.append(i)
         # those who did more but only to cross 7
         # only those who did 15, not more
-        # i.e, 14 shouldn't be in the trajectory, 
+        # i.e, 14 shouldn't be in the trajectory,
         # they shouldn't have done more units after crossing 7
         elif np.max(traj) > 14 and np.max(traj) < 17:
-            if 14 not in traj and len(np.unique(traj[traj>14]))<2:
+            if 14 not in traj and len(np.unique(traj[traj > 14])) < 2:
                 filter.append(i)
 
     disc_emp = discount_factors_empirical[filter]
@@ -349,6 +436,14 @@ if __name__ == "__main__":
     # delays
     mucw = np.array(data_weeks.apply(get_mucw, axis=1))
     completion_week = np.array(data_weeks.apply(get_completion_week, axis=1))
+
+    # %% correlations
+
+    # are impulsivity and self-control correlated with empirical discount
+    # rates in the larger sample
+
+    y, x = drop_nans(self_control, discount_factors_empirical)
+    pearsonr(y, x)
 
     # %% plot mucw vs params
 
@@ -433,11 +528,14 @@ if __name__ == "__main__":
     # %% regressions
 
     y, xhat, hess = drop_nans(
-        proc_mean, discount_factors_fitted, diag_hess[:, 0])
+        self_control, discount_factors_fitted, diag_hess[:, 0])
 
     xhat_reshaped = xhat.reshape(-1, 1)
 
     # error regression with one predictor
+    # bounds: for integration of latent parameter
+    # opt_bounds: bounds for scipy optimise
+    #             for free params (betas, intercept, sigma)
     result = fit_regression(y, xhat_reshaped,
                             (1/hess)**0.5,
                             bounds=[(0, 1)],
@@ -458,3 +556,46 @@ if __name__ == "__main__":
     lr_stat = 2 * (result_null.fun - result.fun)
     p_value = 1 - chi2.cdf(lr_stat, df=1)
     print(lr_stat, p_value)
+
+    # %% mixed regressions (w error and exact terms)
+
+    y, z, xhat, hess = drop_nans(
+        self_control, discount_factors_empirical, discount_factors_fitted,
+        diag_hess[:, 0])
+
+    xhat_reshaped = xhat.reshape(-1, 1)
+    z_reshaped = z.reshape(-1, 1)
+    # regression with one latent predictor and one fixed
+    result = fit_regression_mixed(y, z_reshaped, xhat_reshaped,
+                                  (1/hess)**0.5,
+                                  bounds=[(0, 1)],
+                                  opt_bounds=[(None, None), (None, None),
+                                              (None, None), (1e-3, None)],
+                                  initial_guess=[0.1, 0.1, 0.1, 1])
+    print(result)
+
+    # null regression with coefficient for z set to zero
+    result_null_z = fit_null_regression_mixed(
+        y, z_reshaped, xhat_reshaped, (1/hess)**0.5,
+        bounds=[(0, 1)],
+        opt_bounds=[(None, None), (None, None), (1e-3, None)],
+        initial_guess=[0.1, 0.1, 1], which_zero='z')
+    print(result_null_z)
+    # LRT
+    lr_stat = 2 * (result_null_z.fun - result.fun)
+    p_value = 1 - chi2.cdf(lr_stat, df=1)
+    print(lr_stat, p_value)
+
+    # null regression with coefficient for x set to zero
+    result_null_x = fit_null_regression_mixed(
+        y, z_reshaped, xhat_reshaped, (1/hess)**0.5,
+        bounds=[(0, 1)],
+        opt_bounds=[(None, None), (None, None), (1e-3, None)],
+        initial_guess=[0.1, 0.1, 1], which_zero='x')
+    print(result_null_x)
+    # LRT
+    lr_stat = 2 * (result_null_x.fun - result.fun)
+    p_value = 1 - chi2.cdf(lr_stat, df=1)
+    print(lr_stat, p_value)
+
+# %%
