@@ -31,7 +31,7 @@ def plot_trajectories(trajectories, color, lwidth_mean, lwidth_sample,
 np.random.seed(0)
 
 cmap = plt.get_cmap('Blues')
-colors = [0.4, 0.7, 0.9]
+colors = [0.5, 0.7, 0.9]
 discounts = [0.4, 0.95, 0.99]
 efficacy = 0.9
 effort = -0.3
@@ -42,11 +42,11 @@ for i_d, discount in enumerate(discounts):
         n_trials=5, n_participants=1)
     plot_trajectories(np.squeeze(data),
                       cmap(colors[i_d]),
-                      lwidth_mean=2, lwidth_sample=0.75,
+                      lwidth_mean=2, lwidth_sample=1,
                       number_samples=3, label=f'{discount}')
 plt.title('Simulations')
 plt.legend(bbox_to_anchor=(0.5, 1.17), ncol=4, frameon=False, fontsize=14,
-        loc='upper center', columnspacing=0.5, handlelength=1.5)
+           loc='upper center', columnspacing=0.5, handlelength=1.5)
 plt.text(-1.3, 25.00, r'$\gamma$', ha='center', va='center')
 plt.savefig(
     f'plots/vectors/simulations_disc.svg',
@@ -55,7 +55,7 @@ plt.show()
 
 # %%
 cmap = plt.get_cmap('Greens')
-colors = [0.4, 0.7, 0.9]
+colors = [0.5, 0.7, 0.9]
 discount = 0.99
 efficacys = [0.4, 0.6, 1]
 effort = -0.3
@@ -66,10 +66,10 @@ for i_ec, efficacy in enumerate(efficacys):
         n_trials=5, n_participants=1)
     plot_trajectories(np.squeeze(data),
                       cmap(colors[i_ec]),
-                      lwidth_mean=2, lwidth_sample=0.75,
+                      lwidth_mean=2, lwidth_sample=1,
                       number_samples=3, label=f'{efficacy}')
 plt.legend(bbox_to_anchor=(0.5, 1.17), ncol=3, frameon=False, fontsize=14,
-        loc='upper center', columnspacing=0.5, handlelength=1.5)
+           loc='upper center', columnspacing=0.5, handlelength=1.5)
 plt.text(-1.3, 25.00, r'$\eta$', ha='center', va='center')
 plt.savefig(
     f'plots/vectors/simulations_efficacy.svg',
@@ -78,7 +78,7 @@ plt.show()
 
 # %%
 cmap = plt.get_cmap('Oranges')
-colors = [0.4, 0.7, 0.9]
+colors = [0.5, 0.7, 0.9]
 discount = 0.99
 efficacy = 0.9
 efforts = [-3, -1.5, -0.3]
@@ -89,10 +89,10 @@ for i_et, effort in enumerate(efforts):
         n_trials=5, n_participants=1)
     plot_trajectories(np.squeeze(data),
                       cmap(colors[i_et]),
-                      lwidth_mean=2, lwidth_sample=0.75,
+                      lwidth_mean=2, lwidth_sample=1,
                       number_samples=3, label=f'{effort}')
 plt.legend(bbox_to_anchor=(0.5, 1.17), ncol=3, frameon=False, fontsize=14,
-        loc='upper center', columnspacing=0.5, handlelength=1.5)
+           loc='upper center', columnspacing=0.5, handlelength=1.5)
 plt.text(-1.3, 25.00, r'$r_{\text{effort}}$', ha='center', va='center')
 plt.savefig(
     f'plots/vectors/simulations_effort.svg',
