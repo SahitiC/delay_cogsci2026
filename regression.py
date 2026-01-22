@@ -1,4 +1,6 @@
 # %% imports
+from statsmodels.stats.mediation import Mediation
+import statsmodels.formula.api as smf
 import seaborn as sns
 import gen_data
 import constants
@@ -457,8 +459,8 @@ if __name__ == "__main__":
     plt.ylabel('MUCW')
     sns.despine()
     plt.savefig(
-    f'plots/vectors/mucw_disc.svg',
-    format='svg', dpi=300)
+        f'plots/vectors/mucw_disc.svg',
+        format='svg', dpi=300)
 
     plt.figure(figsize=(4, 4), dpi=300)
     plt.scatter(efficacy, y, color='gray')
@@ -533,19 +535,19 @@ if __name__ == "__main__":
     plt.savefig(
         f'plots/vectors/mucw_sim_effort.svg',
         format='svg', dpi=300)
-    
+
     # %% 3D plots
-    %matplotlib widget
+
     trajectories = np.array(
-    [ast.literal_eval(data_weeks['cumulative progress weeks'][i])
-     for i in range(len(data_weeks))])*2
+        [ast.literal_eval(data_weeks['cumulative progress weeks'][i])
+         for i in range(len(data_weeks))])*2
     units_completed = np.array([np.max(trajectories[i])
                                 for i in range(len(trajectories))])
-    
-    fig = plt.figure(figsize=(6,5))
+
+    fig = plt.figure(figsize=(6, 5))
     ax = fig.add_subplot(111, projection='3d', elev=-155, azim=-45)
     p = ax.scatter(fit_params[:, 2], fit_params[:, 1],
-                fit_params[:, 0], c=units_completed, s=60, cmap='viridis')
+                   fit_params[:, 0], c=units_completed, s=60, cmap='viridis')
     ax.set_title('Units completed', fontsize=14)
     ax.set_xlabel(r'$r_{\text{effort}}$', fontsize=14)
     ax.set_ylabel(r'$\eta$', fontsize=14)
@@ -558,13 +560,13 @@ if __name__ == "__main__":
     cbar.ax.tick_params(labelsize=14)
     plt.show()
     plt.savefig(
-    f'plots/vectors/3D_1.svg',
-    format='svg', dpi=300)
+        f'plots/vectors/3D_1.svg',
+        format='svg', dpi=300)
 
-    fig = plt.figure(figsize=(6,5))
+    fig = plt.figure(figsize=(6, 5))
     ax = fig.add_subplot(111, projection='3d', elev=-155, azim=-45)
     p = ax.scatter(fit_params[:, 2], fit_params[:, 1],
-                fit_params[:, 0], c=completion_week, s=60, cmap='viridis')
+                   fit_params[:, 0], c=completion_week, s=60, cmap='viridis')
     ax.set_title('Completion week', fontsize=14)
     ax.set_xlabel(r'$r_{\text{effort}}$', fontsize=14)
     ax.set_ylabel(r'$\eta$', fontsize=14)
@@ -577,8 +579,8 @@ if __name__ == "__main__":
     cbar.ax.tick_params(labelsize=14)
     plt.show()
     plt.savefig(
-    f'plots/vectors/3D_2.svg',
-    format='svg', dpi=300)
+        f'plots/vectors/3D_2.svg',
+        format='svg', dpi=300)
 
     # %% regressions
 
@@ -652,5 +654,24 @@ if __name__ == "__main__":
     lr_stat = 2 * (result_null_x.fun - result.fun)
     p_value = 1 - chi2.cdf(lr_stat, df=1)
     print(lr_stat, p_value)
+
+    # %% mediation analysis
+
+    y, m, disc, effc, efft = drop_nans(
+        mucw, proc_mean, discount_factors_fitted, efficacy_fitted,
+        efforts_fitted)
+
+    df = pd.DataFrame({'y': y,
+                       'm': m,
+                       'disc': disc,
+                       'effc': effc,
+                       'efft': efft})
+
+    model1 = smf.ols(formula='m ~ disc + effc + efft', data=df)
+    model2 = smf.ols(formula='y ~ m + disc + effc + efft', data=df)
+
+    med = Mediation(model2, model1, exposure='disc', mediator='m')
+    med_result = med.fit(n_rep=5000, method='bootstrap')
+    print(med_result.summary())
 
 # %%
