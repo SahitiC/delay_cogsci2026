@@ -1,6 +1,5 @@
 # %% imports
-from statsmodels.stats.mediation import Mediation
-import statsmodels.formula.api as smf
+from sklearn.cross_decomposition import CCA
 import seaborn as sns
 import gen_data
 import constants
@@ -655,23 +654,43 @@ if __name__ == "__main__":
     p_value = 1 - chi2.cdf(lr_stat, df=1)
     print(lr_stat, p_value)
 
-    # %% mediation analysis
+    # %% cca
 
-    y, m, disc, effc, efft = drop_nans(
-        mucw, proc_mean, discount_factors_fitted, efficacy_fitted,
-        efforts_fitted)
+    df = pd.DataFrame({'pass': proc_mean,
+                       'disc_emp': discount_factors_empirical,
+                       'impulsivity': impulsivity_score,
+                       'self_control': self_control,
+                       'time_man': time_management,
+                       'task_avers': task_aversiveness,
+                       'disc': discount_factors_fitted,
+                       'efficacy': efficacy_fitted,
+                       'effort': efforts_fitted})
 
-    df = pd.DataFrame({'y': y,
-                       'm': m,
-                       'disc': disc,
-                       'effc': effc,
-                       'efft': efft})
+    df = df.dropna()
+    df = (df-df.mean())/df.std()
 
-    model1 = smf.ols(formula='m ~ disc + effc + efft', data=df)
-    model2 = smf.ols(formula='y ~ m + disc + effc + efft', data=df)
+    X = df.iloc[:, 0:6]
+    Y = df.iloc[:, 6:9]
 
-    med = Mediation(model2, model1, exposure='disc', mediator='m')
-    med_result = med.fit(n_rep=5000, method='bootstrap')
-    print(med_result.summary())
+    cca = CCA(n_components=2)
+    cca.fit(X, Y)
+    X_c, Y_c = cca.transform(X, Y)
+    score = cca.score(X, Y)
+
+    plt.figure()
+    plt.scatter(X_c[:, 0], Y_c[:, 0])
+    print(pearsonr(X_c[:, 0], Y_c[:, 0]))
+    plt.figure()
+    plt.scatter(X_c[:, 1], Y_c[:, 1])
+    print(pearsonr(X_c[:, 1], Y_c[:, 1]))
+
+    print(cca.x_loadings_)
+    print(cca.y_loadings_)
+    print(cca.x_weights_)
+
+    # variance explained
+    print(np.mean(cca.x_loadings_**2, axis=0))
+    print(np.mean(cca.y_loadings_**2, axis=0))
+
 
 # %%
