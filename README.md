@@ -11,15 +11,14 @@ Procrastination is a universal phenomenon, with a significant proportion of the 
 ## Installation
 
 1. clone repository \
-   for https: `git clone https://github.com/SahitiC/delay_cogsci2026.git` or \
-   for ssh: `git clone git@github.com:SahitiC/delay_cogsci2026.git`
+   `git clone git@github.com:SahitiC/delay_cogsci2026.git`
 2. create and activate python virtual environment using your favourite environment manager (pip, conda etc) \
    for python virtual environments:\
-   create: `python3 -m venv .env`\
-   activate: for macOS & Linux, `source .env/bin/activate` and for Windows, `.env\Scripts\activate`
+   create: `python3 -m venv .venv`\
+   activate: for macOS & Linux, `source .venv/bin/activate` and for Windows, `.venv\Scripts\activate`
    for conda environments:\
-   create: `conda create -n env`\
-   activate: `conda activate env`
+   create: `conda create -n venv`\
+   activate: `conda activate venv`
 3. install packages in requirments.txt: \
    for pip: \
    `pip install -r requirements.txt` \
@@ -29,58 +28,81 @@ Procrastination is a universal phenomenon, with a significant proportion of the 
 
 ## Usage
 
-1. first run the data processing and clustering script to reproduce Figure 1:\
-   (the data clusters do not necessarily appear in the same order as in the paper)\
-   `python data_clusters.py`
-2. then implement models to reproduce Figures 2-5:
+1. First run the data preprocessing script to plot example trajectories from data to reproduce Figure 1A:\
+   The code aggregates trajectories over weeks and filters participants. Resulting dataframe is in data_preprocessed.csv
    <code>
-   python basic_model.py
-   python immediate_reward_model.py
-   python defection_model.py
-   python no_commitment.py
+   python data_preprocessing.py
+   </code>
+2. Then run the RL model to generate simulated trajectories and reproduce Figures 1B-D:
+   <code>
+   python simulations.py
+   </code>
+3. Fit model to student trajectories and test recovery of fit params:
+   <code>
+   python model_fitting.py
+   python recovery_fits.py
+   python recovery_results.py
+   </code>
+4. Inspect fitted result and do posterior predictive checks, outputs plots in Figures 2 and 3:
+   <code>
+   python model_fitting_result.py
+   </code>
+5. Carry out statistical analyses in paper and relate fitted parameters to other measures in data; reproduce Tables 1-4:
+   <code>
+   python statistics.py
    </code>
         
 ## Description
 
-1. FollowUpStudymatrixDf_finalpaper.csv - data from [Zhang and Ma 2024](https://www.nature.com/articles/s41598-024-65110-4). Consists of data from 193 students in a psychology course. For our paper, the columns of interest are 'delta progress' and 'cumulative progress' that contain data about how many hours of experiments each student did per day in the semester
+1. zhang_ma_data.csv - data from [Zhang and Ma 2024](https://www.nature.com/articles/s41598-024-65110-4). Consists of data from 193 students in a psychology course
 
-2. plots/ - folder containing all plots as vector images and final figures in the paper
+2. data_preprocessed.csv - filtered data with delta and cumulative progress over weeks and days
 
-3. data_clusters.py - preprocesses data (removes dropped-out subjects) and does k-means clustering (clustered data is in data_relevant_clustered.csv), plots patterns of working in clusters (Figure 1 of paper)
+3. data_to_fit_lst.npy - numpy file containing trajectories for fitting model (load with the command `np.load("data_to_fit_lst.npy", allow_pickle=True))
 
-4. data_relevant_clustered.csv - contains data with cluster labels
+4. fit_individual_mle.npy, fit_params_mle.npy - model fitting results and fitted params
+
+5. recovery_fits_mle.npy - recovery results
+
+6.  plots/ - folder containing all plots as vector images and final figures in the paper
 
 Modules containing some helper functions for further steps: 
 
-5. mdp_algms.py - functions for algorithms that find the optimal policy in MDPs, based on dynamic programming 
+7. mdp_algms.py - functions for algorithms that find the optimal policy in MDPs, based on dynamic programming 
 
-6. task_structure.py - functions for constructing reward/ effort functions based on various reward schedules and convex/ linear cost functions and also transition functions based on the transition structure in the different models
+8. task_structure.py - functions for constructing reward/ effort functions based on various reward schedules and transition functions based on the transition structure in the different models
 
-7. plotter.py - code for plotting average and example trajectories reported in the paper
+9. constants.py - define few shared constants over all the models (states, actions, horizon, effort, shirk reward)
 
-8. constants.py - define few shared constants over all the models (states, actions, horizon, effort, shirk reward)
+10. gen_data.py -  simulate trajectories from model
 
-9. compute_distance.py - functions to compute (Euclidean) distance between simulated trajectories from models and data clusters: gives an idea of how well a model 
-(with a specific parameter configuration) 'fits' the data cluster
+11. likelihoods.py - functions for calculating likelihood of trajectories under model
 
-The following scripts (10-13) implement each model type from the paper; they call modules 1-4 for defining task structure and model params, solving MDP and plotting; output plots and save SVGs to 'plots/vectors/' folder: 
+12. regression.py - functions for doing error regression 
 
-10. basic_model.py - implements model with delayed rewards and common exponential discount factor; reproduces plots in Figure 2 (A-D)
+13. helper.py - contains some misc. helper functions
 
-11. immediate_reward_model.py - implements model with immediate rewards; reproduces Figure 3 (A,B)
+The following modules generate the main results in the paper
 
-12. defection_model.py - implements model with different discount factors; reproduces Figure 4 (A,B)
+13. simulations.py - simulate and plot example trajectories while varying params
 
-13. no_commitment.py - implements model with uncertain interest rewards; reproduces Figure 5 (A,B) 
+14. model_fitting.py, model_fitting.sh - fit model to data (contains optio to paralellise), and associated bash script to run on cluster
 
-14. .gitignore - tell git to ignore some local files, please change this based on your local repo
+15. model_fitting_results.py - inspect model fitting results, do posterior predictive checks
 
-15. requirements.txt - python packages required to run these files
+16. recovery_fits.py, recovery_fits.sh - run recovery analysis (also paralellised)
 
-16. CheboluDayan2024.pdf - final pdf of the paper
+17. recovery_results.py - run recovery analysis
+
+18. statistics.py - run correlation and regression analyses 
+
+19. .gitignore - tell git to ignore some local files, please change this based on your local repo
+
+20. requirements.txt - python packages required to run these files
 
 ## Citation
 
+<!--
 If you found this code or paper helpful, please cite us as:
 
 Chebolu, S., & Dayan, P. (2024). Optimal and sub-optimal temporal decisions can explain procrastination in a real-world task. Proceedings of the Annual Meeting of the Cognitive Science Society, 46. Retrieved from <https://escholarship.org/uc/item/2mg517js> 
@@ -94,6 +116,7 @@ Chebolu, S., & Dayan, P. (2024). Optimal and sub-optimal temporal decisions can 
   year={2024} 
 }
 </code>
+-->
 
 ## Contact
 
