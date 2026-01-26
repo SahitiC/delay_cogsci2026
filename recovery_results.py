@@ -49,3 +49,5 @@ for i in range(n_params):
 
     plt.xlabel('Input Parameter')
     plt.ylabel('Recovered Parameter')
+
+# %%

@@ -15,7 +15,7 @@ mkdir -p ${SCRATCH_DIRECTORY}
 cd ${SCRATCH_DIRECTORY}
 
 # copy the necessary files to scratch directory
-cp ${SLURM_SUBMIT_DIR}/fit_params_mle.npy ${SCRATCH_DIRECTORY}
+cp ${SLURM_SUBMIT_DIR}/fit_individual_mle.npy ${SCRATCH_DIRECTORY}
 cp ${SLURM_SUBMIT_DIR}/recovery_fits.py ${SCRATCH_DIRECTORY}
 cp ${SLURM_SUBMIT_DIR}/mle.py ${SCRATCH_DIRECTORY}
 cp ${SLURM_SUBMIT_DIR}/likelihoods.py ${SCRATCH_DIRECTORY}
@@ -23,6 +23,7 @@ cp ${SLURM_SUBMIT_DIR}/constants.py ${SCRATCH_DIRECTORY}
 cp ${SLURM_SUBMIT_DIR}/gen_data.py ${SCRATCH_DIRECTORY}
 cp ${SLURM_SUBMIT_DIR}/task_structure.py ${SCRATCH_DIRECTORY}
 cp ${SLURM_SUBMIT_DIR}/mdp_algms.py ${SCRATCH_DIRECTORY}
+cp ${SLURM_SUBMIT_DIR}/helper.py ${SCRATCH_DIRECTORY}
 
 # activate Anaconda work environment
 source /home/${USER}/.bashrc
