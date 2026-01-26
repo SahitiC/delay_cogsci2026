@@ -19,7 +19,7 @@ EFFICACY = 0.8  # self-efficacy (probability of progress for each unit)
 
 # utilities :
 REWARD_THR = 4.0  # reward per unit at threshold (14 units)
-REWARD_SHIRK = 0.0
+REWARD_SHIRK = 0.1
 EFFORT_WORK = -0.3
 REWARD_EXTRA = REWARD_THR/8  # extra reward for completing all units
 BETA = 5  # softmax beta
