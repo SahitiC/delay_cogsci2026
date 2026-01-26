@@ -1,5 +1,6 @@
 # %%
 import numpy as np
+import ast
 
 
 def sample_initial_params(model_name, num_samples=1):
@@ -81,4 +82,48 @@ def Hess_diag(fun, x, dx=1e-4):
     return hessdiag
 
 
-# %%
+def drop_nans(*arrays):
+    stacked = np.column_stack(arrays)
+    mask = np.isnan(stacked).any(axis=1)
+    return tuple(arr[~mask] for arr in arrays)
+
+
+def get_mucw(row):
+    units = np.array(ast.literal_eval(
+        row['delta progress weeks']))*2
+    units_cum = np.array(ast.literal_eval(
+        row['cumulative progress weeks']))*2
+    if np.max(units_cum) > 14:
+        a = np.where(units_cum >= 14)[0][0]
+        arr = units[:a+1]
+        if units_cum[a] > 14:
+            arr[-1] = 14 - units_cum[a-1]
+        mucw = np.sum(arr * np.arange(1, len(arr)+1)) / 14
+        return mucw
+    else:
+        arr = units
+        mucw = np.sum(arr * np.arange(1, len(arr)+1)) / np.sum(arr)
+        return mucw
+
+
+def get_mucw_simulated(trajectory):
+    if np.max(trajectory) > 14:
+        a = np.where(trajectory >= 14)[0][0]
+        arr = trajectory[:a+1]
+        if arr[-1] > 14:
+            arr[-1] = 14
+        mucw = (14*(len(arr)+1) - np.sum(arr))/14
+        return mucw
+    else:
+        arr = trajectory
+        mucw = (np.max(arr)*(len(arr)+1) - np.sum(arr))/np.max(arr)
+        return mucw
+
+
+def get_completion_week(row):
+    hours = np.array(ast.literal_eval(
+        row['cumulative progress weeks']))
+    if np.max(hours) >= 7:
+        return np.where(hours >= 7)[0][0]
+    else:
+        return np.nan
