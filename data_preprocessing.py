@@ -26,13 +26,10 @@ def process_delta_progress(row, semester_length_weeks):
 
 
 def cumulative_progress_weeks(row):
-
+    """
+    cumulative sum of delta progress
+    """
     return np.cumsum(row['delta progress weeks']).tolist()
-
-
-def get_timeseries_to_cluster(row):
-
-    return row['cumulative progress weeks']
 
 
 # %% drop unwanted rows
@@ -93,5 +90,3 @@ plt.savefig(
     f'plots/vectors/data.svg',
     format='svg', dpi=300)
 plt.show()
-
-# %%
