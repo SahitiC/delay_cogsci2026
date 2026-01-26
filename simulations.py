@@ -39,7 +39,7 @@ plt.figure(figsize=(4, 4), dpi=300)
 for i_d, discount in enumerate(discounts):
     data = gen_data.simulate(
         np.array([[discount, efficacy, effort]]),
-        n_trials=5, n_participants=1)
+        n_trials=1000, n_participants=1)
     plot_trajectories(np.squeeze(data),
                       cmap(colors[i_d]),
                       lwidth_mean=2, lwidth_sample=1,
@@ -63,7 +63,7 @@ plt.figure(figsize=(4, 4), dpi=300)
 for i_ec, efficacy in enumerate(efficacys):
     data = gen_data.simulate(
         np.array([[discount, efficacy, effort]]),
-        n_trials=5, n_participants=1)
+        n_trials=1000, n_participants=1)
     plot_trajectories(np.squeeze(data),
                       cmap(colors[i_ec]),
                       lwidth_mean=2, lwidth_sample=1,
@@ -86,7 +86,7 @@ plt.figure(figsize=(4, 4))
 for i_et, effort in enumerate(efforts):
     data = gen_data.simulate(
         np.array([[discount, efficacy, effort]]),
-        n_trials=5, n_participants=1)
+        n_trials=1000, n_participants=1)
     plot_trajectories(np.squeeze(data),
                       cmap(colors[i_et]),
                       lwidth_mean=2, lwidth_sample=1,
