@@ -49,9 +49,9 @@ for i in range(3):
     plt.hist(fit_params[:, i], color='grey')
     plt.xlabel(par_names[i])
     sns.despine()
-    # plt.savefig(
-    #     f'plots/vectors/pars_{i}.svg',
-    #     format='svg', dpi=300)
+    plt.savefig(
+        f'plots/vectors/pars_{i}.svg',
+        format='svg', dpi=300)
     plt.show()
 
 plt.figure(figsize=(4, 4), dpi=300)
@@ -60,9 +60,9 @@ a = np.where(a == 1, 0.999, a)
 plt.hist(1/(1-a), color='grey')
 plt.xlabel(r'$\frac{1}{1-\gamma}$')
 sns.despine()
-# plt.savefig(
-#     'plots/vectors/par_disc_transf.svg',
-#     format='svg', dpi=300)
+plt.savefig(
+    'plots/vectors/par_disc_transf.svg',
+    format='svg', dpi=300)
 plt.show()
 
 count = 0
@@ -76,9 +76,9 @@ for i in range(3):
             plt.ylabel(par_names[j])
             count += 1
             sns.despine()
-            # plt.savefig(
-            #     f'plots/vectors/pars_corr_{count}.svg',
-            #     format='svg', dpi=300)
+            plt.savefig(
+                f'plots/vectors/pars_corr_{count}.svg',
+                format='svg', dpi=300)
             plt.show()
 
 # %% plot mucw vs params
@@ -101,26 +101,26 @@ plt.scatter(disc, y, color='gray')
 plt.xlabel(r'$\gamma$')
 plt.ylabel('MUCW')
 sns.despine()
-# plt.savefig(
-#     f'plots/vectors/mucw_disc.svg',
-#     format='svg', dpi=300)
+plt.savefig(
+    f'plots/vectors/mucw_disc.svg',
+    format='svg', dpi=300)
 
 plt.figure(figsize=(4, 4), dpi=300)
 plt.scatter(efficacy, y, color='gray')
 plt.xlabel(r'$\eta$')
 plt.ylabel('MUCW')
 sns.despine()
-# plt.savefig(
-#     f'plots/vectors/mucw_effic.svg',
-#     format='svg', dpi=300)
+plt.savefig(
+    f'plots/vectors/mucw_effic.svg',
+    format='svg', dpi=300)
 plt.figure(figsize=(4, 4), dpi=300)
 plt.scatter(effort, y, color='gray')
 plt.xlabel(r'$r_{\text{effort}}$')
 plt.ylabel('MUCW')
 sns.despine()
-# plt.savefig(
-#     f'plots/vectors/mucw_effort.svg',
-#     format='svg', dpi=300)
+plt.savefig(
+    f'plots/vectors/mucw_effort.svg',
+    format='svg', dpi=300)
 
 a = disc
 a = np.where(disc == 1, 0.999, disc)
@@ -129,9 +129,9 @@ plt.scatter(1/(1-a), y, color='gray')
 plt.xlabel(r'$\frac{1}{1-\gamma}$')
 plt.ylabel('MUCW')
 sns.despine()
-# plt.savefig(
-#     f'plots/vectors/mucw_inv_disc.svg',
-#     format='svg', dpi=300)
+plt.savefig(
+    f'plots/vectors/mucw_inv_disc.svg',
+    format='svg', dpi=300)
 
 #  compare with simulated data for these parameters
 mucw_simulated = []
@@ -151,33 +151,33 @@ plt.scatter(disc, mucw_simulated, color='gray')
 plt.xlabel(r'$\gamma$')
 plt.ylabel('MUCW')
 sns.despine()
-# plt.savefig(
-#     f'plots/vectors/mucw_sim_disc.svg',
-#     format='svg', dpi=300)
+plt.savefig(
+    f'plots/vectors/mucw_sim_disc.svg',
+    format='svg', dpi=300)
 plt.figure(figsize=(4, 4), dpi=300)
 plt.scatter(1/(1-a), mucw_simulated, color='gray')
 plt.xlabel(r'$\frac{1}{1-\gamma}$')
 plt.ylabel('MUCW')
 sns.despine()
-# plt.savefig(
-#     f'plots/vectors/mucw_sim_inv_disc.svg',
-#     format='svg', dpi=300)
+plt.savefig(
+    f'plots/vectors/mucw_sim_inv_disc.svg',
+    format='svg', dpi=300)
 plt.figure(figsize=(4, 4), dpi=300)
 plt.scatter(efficacy, mucw_simulated, color='gray')
 plt.xlabel(r'$\eta$')
 plt.ylabel('MUCW')
 sns.despine()
-# plt.savefig(
-#     f'plots/vectors/mucw_sim_effic.svg',
-#     format='svg', dpi=300)
+plt.savefig(
+    f'plots/vectors/mucw_sim_effic.svg',
+    format='svg', dpi=300)
 plt.figure(figsize=(4, 4), dpi=300)
 plt.scatter(effort, mucw_simulated, color='gray')
 plt.xlabel(r'$r_{\text{effort}}$')
 plt.ylabel('MUCW')
 sns.despine()
-# plt.savefig(
-#     f'plots/vectors/mucw_sim_effort.svg',
-#     format='svg', dpi=300)
+plt.savefig(
+    f'plots/vectors/mucw_sim_effort.svg',
+    format='svg', dpi=300)
 
 # %% 3D plots
 
@@ -202,9 +202,9 @@ ax.set_box_aspect(None, zoom=1.0)
 cbar = fig.colorbar(p)
 cbar.ax.tick_params(labelsize=14)
 plt.show()
-# plt.savefig(
-#     f'plots/vectors/3D_1.svg',
-#     format='svg', dpi=300)
+plt.savefig(
+    f'plots/vectors/3D_1.svg',
+    format='svg', dpi=300)
 
 fig = plt.figure(figsize=(6, 5))
 ax = fig.add_subplot(111, projection='3d', elev=-155, azim=-45)
@@ -221,8 +221,8 @@ ax.set_box_aspect(None, zoom=1.0)
 cbar = fig.colorbar(p)
 cbar.ax.tick_params(labelsize=14)
 plt.show()
-# plt.savefig(
-#     f'plots/vectors/3D_2.svg',
-#     format='svg', dpi=300)
+plt.savefig(
+    f'plots/vectors/3D_2.svg',
+    format='svg', dpi=300)
 
 # %%
