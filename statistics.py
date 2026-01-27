@@ -187,7 +187,7 @@ print(lr_stat, p_value)
 # %% mixed regressions (w error and exact terms)
 
 y, z, xhat, hess = helper.drop_nans(
-    self_control, discount_factors_empirical, discount_factors_fitted,
+    impulsivity_score, discount_factors_empirical, discount_factors_fitted,
     diag_hess[:, 0])
 
 xhat_reshaped = xhat.reshape(-1, 1)
@@ -258,3 +258,5 @@ print(pearsonr(X_c[:, 1], Y_c[:, 1]))
 print(cca.x_loadings_)
 print(cca.y_loadings_)
 print(cca.x_weights_)
+
+# %%

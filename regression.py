@@ -204,7 +204,7 @@ def fit_null_regression(y, xhat, sigma_x, bounds, opt_bounds, initial_guess):
         beta = np.zeros(p)
         intercept, sigma = pars
 
-        nll = 0.0
+        nll = 0
         for i in range(len(y)):
             ll_i = likelihood_i(
                 np.r_[beta, intercept, sigma],
