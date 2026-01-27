@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="178.20158mm"
-   height="90.2519mm"
-   viewBox="0 0 178.20158 90.2519"
+   width="177.67241mm"
+   height="86.061806mm"
+   viewBox="0 0 177.67241 86.061806"
    version="1.1"
    id="svg1"
    xml:space="preserve"
@@ -28,8 +28,8 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      inkscape:zoom="1.03"
-     inkscape:cx="382.52427"
-     inkscape:cy="145.14563"
+     inkscape:cx="380.58252"
+     inkscape:cy="143.20388"
      inkscape:window-width="2560"
      inkscape:window-height="1369"
      inkscape:window-x="2552"
@@ -1335,8 +1335,9 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-0.65119741,-0.8508266)"><g
-       id="g30"><g
+     transform="translate(-1.1803641,-1.3799933)"><g
+       id="g9"
+       transform="translate(0,-1.5875)"><g
          id="patch_2-9"
          transform="matrix(0.14893302,0,0,0.14893302,140.17487,2.3806613)"><path
            d="M 36,256.32 H 259.2 V 34.56 H 36 Z"
@@ -1347,7 +1348,8 @@
            d="M 36,256.32 H 259.2"
            style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter"
            id="path187" /></g><g
-         id="g24"><g
+         id="g24"
+         transform="translate(-1.0583333,-2.1166667)"><g
            id="patch_2-2"
            transform="matrix(0.14893302,0,0,0.14893302,98.28101,2.4638075)"><path
              d="M 36,256.32 H 259.2 V 34.56 H 36 Z"
@@ -4357,7 +4359,8 @@
            clip-path="url(#pbe8655b563-9)"
            style="fill:#808080;stroke-linecap:butt;stroke-linejoin:round"
            id="path7-7" /></g><g
-         id="g26"><g
+         id="g26"
+         transform="matrix(0.96830908,0,0,0.96830908,1.4161926,0.81370214)"><g
            id="patch_2-0"
            transform="matrix(0.1694215,0,0,0.1694215,3.8145795,40.217983)"><path
              d="M 36,256.32 H 259.2 V 34.56 H 36 Z"
@@ -5609,20 +5612,20 @@
              style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter"
              id="path41" /></g></g><text
          xml:space="preserve"
-         transform="matrix(0.26458333,0,0,0.26458333,-0.19585974,-0.5875792)"
+         transform="matrix(0.26458333,0,0,0.26458333,0.33330693,1.5290875)"
          id="text339"
          style="font-size:13.3333px;font-family:Calibri, Calibri_MSFontService, sans-serif;-inkscape-font-specification:'Calibri, Calibri_MSFontService, sans-serif';writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect339);display:inline;fill:#000000;stroke:#000000;stroke-width:1.45512;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"><tspan
            x="3.7011719"
            y="14.627575"
-           id="tspan2"><tspan
+           id="tspan6"><tspan
              style="stroke-linecap:butt"
-             id="tspan1">A</tspan></tspan></text><text
+             id="tspan5">A</tspan></tspan></text><text
          xml:space="preserve"
-         transform="matrix(0.26458333,0,0,0.26458333,-3.2347227,-0.66485322)"
+         transform="matrix(0.26458333,0,0,0.26458333,-4.2930561,1.4518135)"
          id="text340"
          style="font-size:13.3333px;font-family:Calibri, Calibri_MSFontService, sans-serif;-inkscape-font-specification:'Calibri, Calibri_MSFontService, sans-serif';writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect340);display:inline;fill:#000000;stroke:#000000;stroke-width:1.45512;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"><tspan
            x="372.10547"
            y="19.389293"
-           id="tspan4"><tspan
+           id="tspan8"><tspan
              style="stroke-linecap:butt"
-             id="tspan3">B</tspan></tspan></text></g></g></svg>
+             id="tspan7">B</tspan></tspan></text></g></g></svg>
