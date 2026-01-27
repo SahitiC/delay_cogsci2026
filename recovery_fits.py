@@ -20,6 +20,7 @@ if __name__ == "__main__":
     n_trials = 1
     data = []
     parallelise = True
+    np.random.seed(0)
 
     for i in range(len(params)):
 
@@ -49,7 +50,7 @@ if __name__ == "__main__":
     else:
         fit_participants = []
         for i in tqdm(range(len(params))):
-            fit_participant = mle.MLE(data[i], model_name='basic',
+            fit_participant = mle.MLE([data[i]], model_name='basic',
                                       iters=50, initial_guess=None)
             fit_participants.append(fit_participant)
 

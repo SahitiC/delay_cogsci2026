@@ -91,8 +91,6 @@ mucw = np.array(data_weeks.apply(helper.get_mucw, axis=1))
 completion_week = np.array(
     data_weeks.apply(helper.get_completion_week, axis=1))
 
-
-np.random.seed(0)
 y, disc, efficacy, effort = helper.drop_nans(
     mucw, discount_factors_fitted, efficacy_fitted,
     efforts_fitted)
@@ -133,7 +131,8 @@ plt.savefig(
     f'plots/vectors/mucw_inv_disc.svg',
     format='svg', dpi=300)
 
-#  compare with simulated data for these parameters
+# %%  compare with simulated data for these parameters
+np.random.seed(0)
 mucw_simulated = []
 for i in range(len(disc)):
     data = gen_data.gen_data_basic(
