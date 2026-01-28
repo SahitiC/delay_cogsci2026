@@ -47,14 +47,14 @@ Procrastination is a universal phenomenon, with a significant proportion of the 
    <code>
    python model_fitting_result.py
    </code>
-5. Carry out statistical analyses in paper and relate fitted parameters to other measures in data; reproduce Tables 1-4:
+5. Carry out statistical analyses in paper and relate fitted parameters to other measures; reproduce Tables 1-4:
    <code>
    python statistics.py
    </code>
         
 ## Description
 
-1. zhang_ma_data.csv - data from [Zhang and Ma 2024](https://www.nature.com/articles/s41598-024-65110-4). Consists of data from 193 students in a psychology course
+1. zhang_ma_data.csv - data from [Zhang and Ma 2024](https://www.nature.com/articles/s41598-024-65110-4), consists of data from 193 students in a psychology course
 
 2. data_preprocessed.csv - filtered data with delta and cumulative progress over weeks and days
 
@@ -78,27 +78,31 @@ Modules containing some helper functions for further steps:
 
 11. likelihoods.py - functions for calculating likelihood of trajectories under model
 
-12. regression.py - functions for doing error regression 
+12. mle.py - implements maximum likelihood estimation to fit model to trajectories
 
-13. helper.py - contains some misc. helper functions
+13. regression.py - functions for doing error regression 
 
-The following modules generate the main results in the paper
+14. helper.py - contains some misc. helper functions
 
-13. simulations.py - simulate and plot example trajectories while varying params
+The following modules generate the main results in the paper:
 
-14. model_fitting.py, model_fitting.sh - fit model to data (contains optio to paralellise), and associated bash script to run on cluster
+15. data_preprocessing.py - filter participants, calculate delta and cumulative progress over weeks, plot example trajectories from data
 
-15. model_fitting_results.py - inspect model fitting results, do posterior predictive checks
+16. simulations.py - simulate and plot example trajectories while varying params
 
-16. recovery_fits.py, recovery_fits.sh - run recovery analysis (also paralellised)
+17. model_fitting.py, model_fitting.sh - fit model to data (contains optio to paralellise), and associated bash script to run on cluster
 
-17. recovery_results.py - run recovery analysis
+18. model_fitting_result.py - inspect model fitting results, do posterior predictive checks
 
-18. statistics.py - run correlation and regression analyses 
+19. recovery_fits.py, recovery_fits.sh - run recovery analysis (also paralellised)
 
-19. .gitignore - tell git to ignore some local files, please change this based on your local repo
+20. recovery_results.py - run recovery analysis
 
-20. requirements.txt - python packages required to run these files
+21. statistics.py - run correlation and regression analyses 
+
+22. .gitignore - tell git to ignore some local files, please change this based on your local repo
+
+23. requirements.txt - python packages required to run these files
 
 ## Citation
 
